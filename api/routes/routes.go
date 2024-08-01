@@ -1,11 +1,12 @@
-package api
+package routes
 
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/jaimeiherrera/schmo_users_go/api/handler"
 )
 
-func SetupRoutes(router *chi.Mux, handlers *Handlers) {
+func SetupRoutes(router *chi.Mux, handlers *handler.Handlers) {
 	// Global middlewares (applied to all routes)
 	router.Use(middleware.Logger)
 	router.Use(middleware.RequestID)

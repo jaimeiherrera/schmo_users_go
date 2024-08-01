@@ -1,18 +1,19 @@
-package api
+package handler
 
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/jaimeiherrera/schmo_users_go/api"
 	"github.com/jaimeiherrera/schmo_users_go/src/entity"
 )
 
 type Handlers struct {
-	Components *Components
+	Components *api.Components
 }
 
-func NewHandlers(components Components) *Handlers {
+func NewHandlers(components api.Components) *Handlers {
 	return &Handlers{
 		Components: &components,
 	}
@@ -38,7 +39,7 @@ func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Components.UserRepository.FindByID(userID)
+	user, err := h.Components.UserUserCase.FindUserByID(userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -63,7 +64,7 @@ func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
 func (h Handlers) GetUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	users, err := h.Components.UserRepository.FindAll()
+	users, err := h.Components.UserUserCase.FindUserAll()
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -98,7 +99,7 @@ func (h Handlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userCreated, err := h.Components.UserRepository.Create(user)
+	userCreated, err := h.Components.UserUserCase.CreateUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -132,7 +133,7 @@ func (h Handlers) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Components.UserRepository.Delete(userID); err != nil {
+	if err := h.Components.UserUserCase.DeleteUser(userID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
 			fmt.Sprint(`{"message": "Error deleting user: `, err, `"}`),
@@ -167,7 +168,7 @@ func (h Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userUpdated, err := h.Components.UserRepository.Update(userID, user)
+	userUpdated, err := h.Components.UserUserCase.UpdateUser(userID, user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
