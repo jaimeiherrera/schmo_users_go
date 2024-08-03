@@ -24,21 +24,21 @@ func (ua *UserAdapter) FindAll() ([]entity.User, error) {
 
 	data, err := ua.DB.GetAll()
 	if err != nil {
-		return nil, err
+		return users, err
 	}
 
-	for k, v := range data {
+	for _, v := range data {
 		userByte, err := json.Marshal(v)
 		if err != nil {
-			return nil, err
+			return users, err
 		}
 
 		var user entity.User
 		if err := json.Unmarshal(userByte, &user); err != nil {
-			return nil, err
+			return users, err
 		}
 
-		user.UUID = k
+		user.UUID = v["id"].(string)
 		users = append(users, user)
 	}
 

@@ -25,8 +25,12 @@ func (ldb *LocalDB) Get(key string) (interface{}, error) {
 	}
 }
 
-func (ldb *LocalDB) GetAll() (map[string]interface{}, error) {
-	return ldb.Data, nil
+func (ldb *LocalDB) GetAll() ([]map[string]interface{}, error) {
+	returnData := []map[string]interface{}{}
+	for k, v := range ldb.Data {
+		returnData = append(returnData, map[string]interface{}{k: v})
+	}
+	return returnData, nil
 }
 
 func (ldb *LocalDB) Delete(key string) error {

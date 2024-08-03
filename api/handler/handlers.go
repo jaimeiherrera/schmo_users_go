@@ -27,6 +27,7 @@ func (h Handlers) Ping(w http.ResponseWriter, r *http.Request) {
 	))
 }
 
+// TODO: Must implement context.Context
 func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
