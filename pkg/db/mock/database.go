@@ -53,10 +53,10 @@ func (mr *MockDatabaseMockRecorder) Delete(key any) *gomock.Call {
 }
 
 // Get mocks base method.
-func (m *MockDatabase) Get(key string) (any, error) {
+func (m *MockDatabase) Get(key string) (map[string]any, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", key)
-	ret0, _ := ret[0].(any)
+	ret0, _ := ret[0].(map[string]any)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -83,7 +83,7 @@ func (mr *MockDatabaseMockRecorder) GetAll() *gomock.Call {
 }
 
 // Set mocks base method.
-func (m *MockDatabase) Set(key string, value any) error {
+func (m *MockDatabase) Set(key string, value map[string]any) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Set", key, value)
 	ret0, _ := ret[0].(error)

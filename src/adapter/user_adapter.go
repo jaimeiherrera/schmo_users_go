@@ -2,6 +2,7 @@ package adapter
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/google/uuid"
 	"github.com/jaimeiherrera/schmo_users_go/pkg/db"
@@ -38,7 +39,6 @@ func (ua *UserAdapter) FindAll() ([]entity.User, error) {
 			return users, err
 		}
 
-		user.UUID = v["id"].(string)
 		users = append(users, user)
 	}
 
@@ -66,8 +66,18 @@ func (ua *UserAdapter) FindByID(uuid string) (entity.User, error) {
 
 func (ua *UserAdapter) Create(user entity.User) (entity.User, error) {
 	uuid := uuid.New()
-	err := ua.DB.Set(uuid.String(), user)
+
+	userMap := map[string]interface{}{}
+	userByte, err := json.Marshal(user)
 	if err != nil {
+		return entity.User{}, err
+	}
+
+	if err := json.Unmarshal(userByte, &userMap); err != nil {
+		return entity.User{}, err
+	}
+
+	if err := ua.DB.Set(uuid.String(), userMap); err != nil {
 		return entity.User{}, err
 	}
 
@@ -76,16 +86,33 @@ func (ua *UserAdapter) Create(user entity.User) (entity.User, error) {
 }
 
 func (ua *UserAdapter) Update(key string, user entity.User) (entity.User, error) {
-	err := ua.DB.Set(key, user)
+	userGet, err := ua.DB.Get(key)
 	if err != nil {
+		return entity.User{}, err
+	}
+
+	if userGet == nil {
+		return entity.User{}, errors.New("user not found")
+	}
+
+	userMap := map[string]interface{}{}
+	userByte, err := json.Marshal(user)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	if err := json.Unmarshal(userByte, &userMap); err != nil {
+		return entity.User{}, err
+	}
+
+	if err := ua.DB.Set(key, userMap); err != nil {
 		return entity.User{}, err
 	}
 	return user, nil
 }
 
 func (ua *UserAdapter) Delete(uuid string) error {
-	err := ua.DB.Delete(uuid)
-	if err != nil {
+	if err := ua.DB.Delete(uuid); err != nil {
 		return err
 	}
 	return nil

@@ -41,7 +41,8 @@ func TestUser_Update(t *testing.T) {
 	mockDB := mock.NewMockDatabase(ctrl)
 	ua := NewUserRepository(mockDB)
 
-	t.Run("Update", func(t *testing.T) {
+	t.Run("Update success", func(t *testing.T) {
+		mockDB.EXPECT().Get(gomock.Any()).Return(getMockUserMap(), nil)
 		mockDB.EXPECT().Set(gomock.Any(), gomock.Any()).Return(nil)
 
 		user, err := ua.Update(getMockUser().UUID, getMockUser())
@@ -49,7 +50,22 @@ func TestUser_Update(t *testing.T) {
 		assert.NotNil(t, user)
 	})
 	t.Run("Update fail", func(t *testing.T) {
+		mockDB.EXPECT().Get(gomock.Any()).Return(getMockUserMap(), nil)
 		mockDB.EXPECT().Set(gomock.Any(), gomock.Any()).Return(errors.New("error"))
+
+		userUpdated, err := ua.Update(getMockUser().UUID, getMockUser())
+		assert.Error(t, err)
+		assert.Empty(t, userUpdated)
+	})
+	t.Run("Error getting user", func(t *testing.T) {
+		mockDB.EXPECT().Get(gomock.Any()).Return(nil, errors.New("error"))
+
+		userUpdated, err := ua.Update(getMockUser().UUID, getMockUser())
+		assert.Error(t, err)
+		assert.Empty(t, userUpdated)
+	})
+	t.Run("User not found", func(t *testing.T) {
+		mockDB.EXPECT().Get(gomock.Any()).Return(nil, nil)
 
 		userUpdated, err := ua.Update(getMockUser().UUID, getMockUser())
 		assert.Error(t, err)
@@ -65,7 +81,7 @@ func TestUser_FindByID(t *testing.T) {
 	ua := NewUserRepository(mockDB)
 
 	t.Run("FindByID success", func(t *testing.T) {
-		mockDB.EXPECT().Get(gomock.Any()).Return(getMockUser(), nil)
+		mockDB.EXPECT().Get(gomock.Any()).Return(getMockUserMap(), nil)
 
 		userFound, err := ua.FindByID("mock_id")
 		assert.NoError(t, err)
@@ -86,7 +102,7 @@ func TestUser_FindByID(t *testing.T) {
 		assert.Empty(t, allUsers)
 	})
 	t.Run("FindByID fail", func(t *testing.T) {
-		mockDB.EXPECT().Get(gomock.Any()).Return(entity.User{}, errors.New("error"))
+		mockDB.EXPECT().Get(gomock.Any()).Return(nil, errors.New("error"))
 
 		userFound, err := ua.FindByID("mock_id")
 		assert.Error(t, err)
@@ -177,5 +193,15 @@ func getMockUser() entity.User {
 		LastName:  "test",
 		Email:     "test",
 		Password:  "test",
+	}
+}
+
+func getMockUserMap() map[string]interface{} {
+	return map[string]interface{}{
+		"id":         "mock_id",
+		"first_name": "test",
+		"last_name":  "test",
+		"email":      "test",
+		"password":   "test",
 	}
 }

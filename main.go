@@ -15,5 +15,5 @@ func main() {
 	handlers := handler.NewHandlers(*components)
 	routes.SetupRoutes(r, handlers)
 
-	http.ListenAndServe(":3000", r)
+	http.ListenAndServe(":8080", r)
 }
