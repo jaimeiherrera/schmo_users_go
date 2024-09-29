@@ -1,6 +1,7 @@
 package adapter
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 
@@ -20,7 +21,7 @@ func NewUserRepository(database db.Database) gateway.UserRepository {
 	}
 }
 
-func (ua *UserAdapter) FindAll() ([]entity.User, error) {
+func (ua *UserAdapter) FindAll(ctx context.Context) ([]entity.User, error) {
 	users := []entity.User{}
 
 	data, err := ua.DB.GetAll()
@@ -45,7 +46,7 @@ func (ua *UserAdapter) FindAll() ([]entity.User, error) {
 	return users, nil
 }
 
-func (ua *UserAdapter) FindByID(uuid string) (entity.User, error) {
+func (ua *UserAdapter) FindByID(ctx context.Context, uuid string) (entity.User, error) {
 	userEntity := entity.User{}
 	user, err := ua.DB.Get(uuid)
 	if err != nil {
@@ -64,7 +65,7 @@ func (ua *UserAdapter) FindByID(uuid string) (entity.User, error) {
 	return userEntity, nil
 }
 
-func (ua *UserAdapter) Create(user entity.User) (entity.User, error) {
+func (ua *UserAdapter) Create(ctx context.Context, user entity.User) (entity.User, error) {
 	uuid := uuid.New()
 
 	userMap := map[string]interface{}{}
@@ -85,7 +86,7 @@ func (ua *UserAdapter) Create(user entity.User) (entity.User, error) {
 	return user, nil
 }
 
-func (ua *UserAdapter) Update(key string, user entity.User) (entity.User, error) {
+func (ua *UserAdapter) Update(ctx context.Context, key string, user entity.User) (entity.User, error) {
 	userGet, err := ua.DB.Get(key)
 	if err != nil {
 		return entity.User{}, err
@@ -111,7 +112,7 @@ func (ua *UserAdapter) Update(key string, user entity.User) (entity.User, error)
 	return user, nil
 }
 
-func (ua *UserAdapter) Delete(uuid string) error {
+func (ua *UserAdapter) Delete(ctx context.Context, uuid string) error {
 	if err := ua.DB.Delete(uuid); err != nil {
 		return err
 	}
