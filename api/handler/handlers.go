@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -9,6 +10,9 @@ import (
 	"github.com/jaimeiherrera/schmo_users_go/src/entity"
 )
 
+// TODO: Add logging
+// TODO: Add error handling
+// TODO: Add tests
 type Handlers struct {
 	Components *api.Components
 }
@@ -27,8 +31,8 @@ func (h Handlers) Ping(w http.ResponseWriter, r *http.Request) {
 	))
 }
 
-// TODO: Must implement context.Context
 func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
 	w.Header().Set("Content-Type", "application/json")
 
 	userID := r.PathValue("id")
@@ -40,7 +44,7 @@ func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.Components.UserUserCase.FindUserByID(userID)
+	user, err := h.Components.UserUserCase.FindUserByID(ctx, userID)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -63,9 +67,10 @@ func (h Handlers) GetUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handlers) GetUsers(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
 	w.Header().Set("Content-Type", "application/json")
 
-	users, err := h.Components.UserUserCase.FindUserAll()
+	users, err := h.Components.UserUserCase.FindUserAll(ctx)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -88,10 +93,10 @@ func (h Handlers) GetUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handlers) CreateUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
 	w.Header().Set("Content-Type", "application/json")
 
 	user := entity.User{}
-
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(
@@ -100,7 +105,7 @@ func (h Handlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userCreated, err := h.Components.UserUserCase.CreateUser(user)
+	userCreated, err := h.Components.UserUserCase.CreateUser(ctx, user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
@@ -123,6 +128,7 @@ func (h Handlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handlers) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
 	w.Header().Set("Content-Type", "application/json")
 
 	userID := r.PathValue("id")
@@ -134,7 +140,7 @@ func (h Handlers) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.Components.UserUserCase.DeleteUser(userID); err != nil {
+	if err := h.Components.UserUserCase.DeleteUser(ctx, userID); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(
 			fmt.Sprint(`{"message": "Error deleting user: `, err, `"}`),
@@ -149,6 +155,7 @@ func (h Handlers) DeleteUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
+	ctx := context.Background()
 	w.Header().Set("Content-Type", "application/json")
 
 	userID := r.PathValue("id")
@@ -169,7 +176,7 @@ func (h Handlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userUpdated, err := h.Components.UserUserCase.UpdateUser(userID, user)
+	userUpdated, err := h.Components.UserUserCase.UpdateUser(ctx, userID, user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(

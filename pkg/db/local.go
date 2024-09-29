@@ -1,6 +1,8 @@
 package db
 
-import "errors"
+import (
+	"errors"
+)
 
 type LocalDB struct {
 	Data []map[string]interface{}
@@ -13,10 +15,11 @@ func NewLocalDB() *LocalDB {
 }
 
 func (ldb *LocalDB) Set(key string, value map[string]interface{}) error {
-	usr := map[string]interface{}{"id": key}
+	usr := map[string]interface{}{}
 	for k, v := range value {
 		usr[k] = v
 	}
+	usr["id"] = key
 	ldb.Data = append(ldb.Data, usr)
 	return nil
 }
@@ -27,7 +30,7 @@ func (ldb *LocalDB) Get(key string) (map[string]interface{}, error) {
 			return v, nil
 		}
 	}
-	return nil, nil
+	return nil, errors.New("not found")
 }
 
 func (ldb *LocalDB) GetAll() ([]map[string]interface{}, error) {
@@ -41,5 +44,5 @@ func (ldb *LocalDB) Delete(key string) error {
 			return nil
 		}
 	}
-	return errors.New("key not found")
+	return errors.New("not found")
 }
